@@ -103,7 +103,7 @@ def plot_structure(config, seq, title, fname):
     ax.plot(xs, ys, zs, c='gray', alpha=0.6)
     ax.set_title(title)
     plt.tight_layout()
-    plt.savefig(f"plots/{fname}.png")
+    plt.savefig(f"sa_plots/{fname}.png")
     plt.close()
 
 # === SA CORE ===
@@ -149,7 +149,7 @@ def simulated_annealing(seq, n_sweeps=100, T0=2.0, alpha=0.95):
     plt.title("Energy vs. Sweep (Simulated Annealing)")
     plt.grid(alpha=0.3)
     plt.tight_layout()
-    plt.savefig("plots/energy_trace.png")
+    plt.savefig("sa_plots/energy_trace.png")
     plt.close()
 
     return best_E, best
@@ -157,9 +157,9 @@ def simulated_annealing(seq, n_sweeps=100, T0=2.0, alpha=0.95):
 # === MAIN ===
 if __name__ == "__main__":
     os.makedirs("results", exist_ok=True)
-    if os.path.exists("plots"):
-        shutil.rmtree("plots")
-    os.makedirs("plots")
+    if os.path.exists("sa_plots"):
+        shutil.rmtree("sa_plots")
+    os.makedirs("sa_plots")
 
     print(f"Running brute-force optimal search for {SEQUENCE}...")
     best_E, best_configs = brute_force_best(SEQUENCE)
@@ -178,4 +178,4 @@ if __name__ == "__main__":
 
     print(f"\nFinal SA Energy: {sa_E:.2f}")
     plot_structure(sa_config, SEQUENCE, f"SA Final (E={sa_E:.2f})", "final")
-    print("\nPlots saved to ./plots/")
+    print("\nPlots saved to ./sa_plots/")
