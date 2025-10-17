@@ -139,6 +139,8 @@ def simulated_annealing(seq, n_sweeps=100, T0=2.0, alpha=0.95):
 
         if sweep in [10, 50, 100]:
             plot_structure(current, seq, f"SA after {sweep} sweeps (E={E:.2f})", f"sa_{sweep}")
+            print(f"--- Energy breakdown for sweep {sweep} ---")
+            print_energy_breakdown(current, seq)
         T *= alpha
 
     # Plot energy vs sweep
@@ -153,6 +155,52 @@ def simulated_annealing(seq, n_sweeps=100, T0=2.0, alpha=0.95):
     plt.close()
 
     return best_E, best
+
+# === DEBUG ENERGY BREAKDOWN ===
+def print_energy_breakdown(config, seq):
+    E = 0
+    print("\n--- Energy Breakdown ---")
+    # Interaction
+    interaction_E = 0
+    for i in range(len(seq)):
+        for j in range(i + 2, len(seq)):
+            if is_neighbor(config[i], config[j]):
+                if seq[i] == "H" and seq[j] == "H":
+                    interaction_E -= 1
+                elif seq[i] == "C" and seq[j] == "C":
+                    interaction_E += 1
+    print(f"Interaction Energy: {interaction_E}")
+    E += interaction_E
+
+    # Connectivity
+    conn_E = 0
+    for i in range(len(seq) - 1):
+        if not is_neighbor(config[i], config[i + 1]):
+            conn_E += LAMBDA_CONN
+    print(f"Connectivity Penalty: {conn_E}")
+    E += conn_E
+
+    # Uniqueness
+    seen = {}
+    dup_E = 0
+    for idx, site in enumerate(config):
+        if site in seen:
+            dup_E += LAMBDA_DUP
+        else:
+            seen[site] = True
+    print(f"Duplication Penalty: {dup_E}")
+    E += dup_E
+
+    # Coverage
+    all_sites = [(x, y, z) for x in range(Lx) for y in range(Ly) for z in range(Lz)]
+    cov_E = 0
+    if len(config) < len(all_sites):
+        cov_E = LAMBDA_UNCOVERED * (len(all_sites) - len(config))
+    print(f"Coverage Penalty: {cov_E}")
+    E += cov_E
+
+    print(f"Total Energy: {E}\n")
+    return E
 
 # === MAIN ===
 if __name__ == "__main__":
