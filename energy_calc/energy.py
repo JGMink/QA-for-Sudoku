@@ -41,15 +41,15 @@ def compute_E2(b):
     return int(0.5 * E2) # to correct double counting
 
 def compute_E3(b, adj):
-    # Enforces that consecutive acids occupy adjacent sites
     N = b.shape[0]
     E3 = 0
     for i in range(N - 1):
         for n in range(N):
-            for m in range(N):
-                if adj[n, m] == 0:  # non-adjacent sites
-                    E3 += b[i, n] * b[i + 1, m]
+            for m in range(n + 1, N):  # upper triangle only
+                if adj[n, m] == 0:
+                    E3 += b[i, n] * b[i + 1, m] + b[i, m] * b[i + 1, n]
     return E3
+
 
 # === Total Energy Function ===
 def total_energy(chain, bitstring, adj, C, L1=1.0, L2=1.0, L3=1.0):
@@ -62,9 +62,35 @@ def total_energy(chain, bitstring, adj, C, L1=1.0, L2=1.0, L3=1.0):
     return E_MJ + L1*E_1 + L2*E_2 + L3*E_3, (E_MJ, E_1, E_2, E_3)
 
 if __name__ == "__main__":
-    # Example usage
+    # Example usage 1 -> Simple and non-disruptive chain
     chain = ['H', 'P', 'C', 'H']
     bitstring = '0010100001000001'  # Example bitstring for 4 acids and 4 sites
+    adj = np.array([[0, 1, 1, 0],
+                    [1, 0, 0, 1],
+                    [1, 0, 0, 1],
+                    [0, 1, 1, 0]])  # Example adjacency matrix
+
+    total_E, breakdown = total_energy(chain, bitstring, adj, C, L1, L2, L3)
+    print(f"Total Energy: {total_E}")
+    print(f"Energy Breakdown: MJ={breakdown[0]}, E1={breakdown[1]}, E2={breakdown[2]}, E3={breakdown[3]}")
+
+    # Example usage 2 -> just issues with chain connectivity, elsewise fine
+    chain = ['H', 'H', 'C', 'H', 'P', 'C']
+    bitstring = '100000000010010000001000000100000001'  # Example bitstring for 6 acids and 6 sites
+    adj = np.array([[0, 1, 1, 0, 0, 0],
+                    [1, 0, 0, 1, 0, 0],
+                    [1, 0, 0, 1, 1, 0],
+                    [0, 1, 1, 0, 0, 1],
+                    [0, 0, 1, 0, 0, 1],
+                    [0, 0, 0, 1, 1, 0]])  # Example adjacency matrix
+
+    total_E, breakdown = total_energy(chain, bitstring, adj, C, L1, L2, L3)
+    print(f"Total Energy: {total_E}")
+    print(f"Energy Breakdown: MJ={breakdown[0]}, E1={breakdown[1]}, E2={breakdown[2]}, E3={breakdown[3]}")
+    
+    # Example usage 3 -> violates all 3 constraints, can't be represented physically
+    chain = ['H', 'C', 'H', 'P']
+    bitstring = '1100010101001010'  # Example bitstring for 4 acids and 4 sites
     adj = np.array([[0, 1, 1, 0],
                     [1, 0, 0, 1],
                     [1, 0, 0, 1],
