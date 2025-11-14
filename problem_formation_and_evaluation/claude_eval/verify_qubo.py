@@ -7,18 +7,20 @@ import numpy as np
 import sys
 import os
 
-# Add the parent directory's qubo_construction folder to path
+# Add the parent directory's subdirectories to path
 current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
 qubo_construction_path = os.path.join(parent_dir, 'qubo_construction')
+energy_calc_path = os.path.join(parent_dir, 'energy_calc')
 sys.path.insert(0, qubo_construction_path)
+sys.path.insert(0, energy_calc_path)
 
 # Import the modules
-from qubo_generation import (
+from qubo_generation import ( #type: ignore
     build_E_MJ, build_E1, build_E2, build_E3,
     bit_index, decode_bit_index
 )
-from calc_mods import (
+from calc_mods import ( #type: ignore
     compute_E_MJ_debug, compute_E1, compute_E2, compute_E3,
     total_energy, is_valid_conformation, C
 )
