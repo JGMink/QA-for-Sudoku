@@ -435,7 +435,7 @@ def load_ground_truths() -> dict:
 
 def _task_id(prefix: str, seq: str, lambdas: tuple) -> str:
     lname = LAMBDA_NAMES.get(lambdas, f"{lambdas[0]}_{lambdas[1]}_{lambdas[2]}")
-    return f"{prefix}_{seq}_{lname}"
+    return f"{prefix}_{seq}_{lname}_AT{ANNEALING_TIME}"
 
 
 def build_run1_tasks() -> list:
