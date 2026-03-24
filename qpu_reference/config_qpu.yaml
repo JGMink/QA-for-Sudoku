@@ -1,0 +1,60 @@
+# D-Wave QPU Configuration
+#
+# Purpose: Quantum hardware benchmark for large instances
+# Use case: QPU experiments, quantum advantage studies
+#
+# Prerequisites:
+#   - D-Wave Leap account with API token
+#   - Set DWAVE_API_TOKEN environment variable
+
+defaults:
+  solver:
+    type: dwave_qpu
+    params:
+      token: "${DWAVE_API_TOKEN}"  # From environment variable
+      solver_id: "Advantage_system4.1"
+      annealing_time: 20           # Microseconds
+      num_reads: 1000
+      chain_strength: null         # Auto-computed (recommended)
+      find_embedding_params:
+        timeout: 600               # Max embedding time (seconds)
+        tries: 100
+        max_no_improvement: 100
+
+  preset: integer
+
+  weights:
+    lambda_dir: 15.0
+    lambda_walk: 15.0
+    lambda_inc: 1.5
+    lambda_parity: 1.5
+    lambda_coll: 1.5
+    lambda_adj: 1.5
+
+  analysis:
+    compute_violations: true
+
+sequences:
+  n10:
+    sequence: HPPHPHHPHP
+    ground_state_energy: null
+
+  n12:
+    sequence: HPPHPHPHHPHP
+    ground_state_energy: null
+
+  n15:
+    sequence: HPPHPHPHHPHPPHP
+    ground_state_energy: null
+
+experiments:
+  qpu_benchmark:
+    description: "QPU benchmark for N=10,12,15"
+    # Note: QPU runs must be sequential (one at a time)
+    runs:
+      - sequence_ref: n10
+        preset: integer
+      - sequence_ref: n12
+        preset: integer
+      - sequence_ref: n15
+        preset: integer

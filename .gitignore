@@ -1,1 +1,7 @@
 *.png
+.env
+.DS_Store
+qpu_experiments/results/
+qpu_experiments/embeddings/
+qpu_experiments/logs/
+qpu_experiments/ground_truths.json
