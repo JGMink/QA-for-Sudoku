@@ -355,11 +355,13 @@ def solve_task(
 
     emb = load_or_compute_embedding(bqm, sampler, task_id, EMBEDDINGS_DIR)
 
-    # Chain strength: cap at 2x max QUBO coupling so QUBO signal isn't buried
-    # under hardware noise after normalization. uniform_torque_compensation gives
-    # ~5x, which scales QUBO terms down to ~0.13 hardware units (near noise floor).
+    # Chain strength: set to 1× max QUBO coupling.
+    # D-Wave normalizes all couplings by chain_strength, so hardware QUBO values
+    # max out at 1.0 (same as chain coupling). This maximizes constraint signal
+    # (~10× kT* vs ~5× at 2×) at the cost of slightly higher chain breaks.
+    # uniform_torque_compensation gives ~5×, which buries constraints near kT*.
     max_coupling = max(abs(v) for v in bqm.quadratic.values())
-    chain_strength = round(max_coupling * 2.0, 2)
+    chain_strength = round(max_coupling * CHAIN_STRENGTH_MULTIPLIER, 2)
 
     composite = FixedEmbeddingComposite(sampler, emb)
     print(f"  [qpu] submitting  num_reads={NUM_READS}  "
@@ -433,9 +435,11 @@ def load_ground_truths() -> dict:
 # Task builders
 # ---------------------------------------------------------------------------
 
+CHAIN_STRENGTH_MULTIPLIER = 1  # × max_coupling; baked into task_id to prevent collisions
+
 def _task_id(prefix: str, seq: str, lambdas: tuple) -> str:
     lname = LAMBDA_NAMES.get(lambdas, f"{lambdas[0]}_{lambdas[1]}_{lambdas[2]}")
-    return f"{prefix}_{seq}_{lname}_AT{ANNEALING_TIME}"
+    return f"{prefix}_{seq}_{lname}_AT{ANNEALING_TIME}_CS{CHAIN_STRENGTH_MULTIPLIER}x"
 
 
 def build_run1_tasks() -> list:
