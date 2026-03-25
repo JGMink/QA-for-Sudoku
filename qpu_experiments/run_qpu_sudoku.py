@@ -33,6 +33,12 @@ from pathlib import Path
 
 import numpy as np
 
+class _NPEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.integer): return int(obj)
+        if isinstance(obj, np.floating): return float(obj)
+        return super().default(obj)
+
 from dwave.system import DWaveSampler, FixedEmbeddingComposite
 from dwave.embedding.chain_strength import uniform_torque_compensation
 from minorminer import find_embedding
@@ -455,7 +461,7 @@ def phase_solve(tasks: list, sampler: DWaveSampler) -> None:
         try:
             result = solve_task_sudoku(puzzle, sampler, tid)
             with open(result_file, "w") as f:
-                json.dump(result, f, indent=2)
+                json.dump(result, f, indent=2, cls=_NPEncoder)
             total_qpu_us += result.get("qpu_access_us") or 0
         except Exception as exc:
             import traceback
